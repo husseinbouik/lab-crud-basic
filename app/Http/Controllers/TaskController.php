@@ -28,6 +28,8 @@ class TaskController extends Controller
         if ($search) {
             $query->where('name', 'LIKE', '%' . $search . '%')
                 ->orWhere('description', 'LIKE', '%' . $search . '%');
+        }else{
+
         }
     
         $tasks = $query->paginate($tasksPerPage);
@@ -35,10 +37,11 @@ class TaskController extends Controller
         $data = ['tasks' => $tasks, 'search' => $search];
     
         if ($request->ajax()) {
-            return view('blog.index', $data)->render();
+            return view('blog.table', $data)->render();
         }
-    
         return view('blog.index', $data);
+
+    
     }
     
     

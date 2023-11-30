@@ -40,7 +40,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body p-0">
-                        <div class="table-responsive">
+                        <div class="table-responsive" id="resultContainer">
                             @include('blog.table') {{-- Include the table partial --}}
                         </div>
                         <div class="card-header row">
@@ -66,28 +66,35 @@
     </div>
     <script>
         // Add this script for instant search
-        $(document).ready(function() {
-            $('#search').on('keyup', function() {
-                fetchTasks();
-            });
+        $(document).ready(function () {
+    $('#search').on('keyup', function () {
+        fetchTasks();
+    });
 
-            function fetchTasks() {
-                var search = $('#search').val();
+    // Handle pagination links
+    $(document).on('click', '.pagination a', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        fetchTasks(url);
+    });
 
-                $.ajax({
-                    url: '{{ route('tasks.index') }}',
-                    type: 'GET',
-                    data: {
-                        search: search
-                    },
-                    success: function(data) {
-                        $('#tasks-container').html(data);
-                    },
-                    error: function() {
-                        console.log('Error fetching tasks.');
-                    }
-                });
+    function fetchTasks(url = null) {
+        var search = $('#search').val();
+
+        $.ajax({
+            url: url || '{{ route('tasks.index') }}',
+            type: 'GET',
+            data: {
+                search: search
+            },
+            success: function (data) {
+                $('#resultContainer').html(data);
+            },
+            error: function () {
+                console.log('Error fetching tasks.');
             }
         });
+    }
+});
     </script>
 @endsection
