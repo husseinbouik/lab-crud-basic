@@ -27,7 +27,7 @@
                             <!-- SEARCH FORM -->
                             <form class="form-inline ml-3" method="GET" action="{{ route('tasks.index') }}">
                                 <div class="input-group input-group-sm">
-                                    <input type="search" class="form-control form-control-lg" name="search" id="search"
+                                    <input type="search" class="form-control form-control-lg" name="search" id="searchTasks"
                                         placeholder="Recherche" value="{{ $search }}">
                                     <div class="input-group-append">
                                         <button type="submit" class="btn btn-lg btn-default">
@@ -43,21 +43,7 @@
                         <div class="table-responsive" id="resultContainer">
                             @include('blog.table') {{-- Include the table partial --}}
                         </div>
-                        <div class="card-header row">
-                            <div class="float-right col-md-6">
-                                <div class="d-flex justify-content-center">
-                                    {{ $tasks->links('pagination::bootstrap-4') }}
-                                </div>
-                            </div>
-                            <div class="float-left col-md-6 d-flex justify-content-end" style="align-items: center; ">
-                                <button type="button" class="btn btn-default mr-2 swalDefaultQuestion">
-                                    <i class="fas fa-download"></i> export
-                                </button>
-                                <button type="button" class="btn btn-default swalDefaultQuestion">
-                                    <i class="fas fa-file-import"></i> import
-                                </button>
-                            </div>
-                        </div>
+
                         <!-- /.card -->
                     </div>
                 </div>
@@ -66,35 +52,30 @@
     </div>
     <script>
         // Add this script for instant search
-        $(document).ready(function () {
-    $('#search').on('keyup', function () {
-        fetchTasks();
-    });
-
-    // Handle pagination links
-    $(document).on('click', '.pagination a', function (e) {
-        e.preventDefault();
-        var url = $(this).attr('href');
-        fetchTasks(url);
-    });
-
-    function fetchTasks(url = null) {
-        var search = $('#search').val();
-
+        $(document).ready(function() {
+    function fetch_data(page, search) {
         $.ajax({
-            url: url || '{{ route('tasks.index') }}',
-            type: 'GET',
-            data: {
-                search: search
-            },
-            success: function (data) {
-                $('#resultContainer').html(data);
-            },
-            error: function () {
-                console.log('Error fetching tasks.');
+            url: "tasks/?page=" + page + "&searchTasks=" + search,
+            success: function(data) {
+                $('tbody').html('');
+                $('tbody').html(data);
             }
         });
     }
+
+    $('body').on('click', '.pagination a', function(param) {
+        param.preventDefault();
+        var page = $(this).attr('href').split('page=')[1];
+        var search = $('#searchTasks').val();
+        fetch_data(page, search);
+    });
+
+    $('body').on('keyup', '#searchTasks', function() {
+        var search = $('#searchTasks').val();
+        var page = $('#page_hidden').val();
+        fetch_data(page, search);
+    });
+    fetch_data(1, '');
 });
     </script>
 @endsection

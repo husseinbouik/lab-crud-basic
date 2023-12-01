@@ -18,30 +18,28 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 class TaskController extends Controller
 { 
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $tasksPerPage = 2;
-    
-        $query = Task::query();
-    
-        if ($search) {
-            $query->where('name', 'LIKE', '%' . $search . '%')
-                ->orWhere('description', 'LIKE', '%' . $search . '%');
-        }else{
+    protected $TaskRepository;
+
+    public function __construct(TaskRepository $TaskRepository){
+        $this->TaskRepository = $TaskRepository;
+    }
+    public function index(Request $request){
+        $projects = $this->TaskRepository->getData();
+
+        if($request->ajax()){
+            $searchTasks = $request->get('searchTasks');
+            $searchTasks = str_replace(" ", "%", $searchTasks);
+            $projects = Task::where(function ($query) use ($searchTasks) {
+                $query->where('name', 'like', '%' . $searchTasks . '%')
+                      ->orWhere('description','like','%'. $searchTasks . '%');
+            })
+            ->paginate(3);
+            return view('blog.search', compact('tasks'))->render();
 
         }
-    
-        $tasks = $query->paginate($tasksPerPage);
-    
-        $data = ['tasks' => $tasks, 'search' => $search];
-    
-        if ($request->ajax()) {
-            return view('blog.table', $data)->render();
-        }
-        return view('blog.index', $data);
 
-    
+
+        return view('blog.index', compact('tasks'));
     }
     
     
