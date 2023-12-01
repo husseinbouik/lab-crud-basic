@@ -15,30 +15,27 @@ use Validator;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Http\Requests\FormTaskRequest;
 use Illuminate\Http\Request;
+use App\Repository\TaskRepository;
 use App\Models\Task;
 class TaskController extends Controller
-{ 
-    protected $TaskRepository;
-
-    public function __construct(TaskRepository $TaskRepository){
-        $this->TaskRepository = $TaskRepository;
-    }
-    public function index(Request $request){
-        $projects = $this->TaskRepository->getData();
-
-        if($request->ajax()){
+{ public function index(Request $request)
+    {
+        // Retrieve tasks directly from the Task model
+        $tasks = Task::paginate(5); // Adjust the pagination limit as needed
+    
+        if ($request->ajax()){
             $searchTasks = $request->get('searchTasks');
             $searchTasks = str_replace(" ", "%", $searchTasks);
-            $projects = Task::where(function ($query) use ($searchTasks) {
+    
+            $tasks = Task::where(function ($query) use ($searchTasks) {
                 $query->where('name', 'like', '%' . $searchTasks . '%')
-                      ->orWhere('description','like','%'. $searchTasks . '%');
+                    ->orWhere('description', 'like', '%' . $searchTasks . '%');
             })
-            ->paginate(3);
+                ->paginate(3);
+    
             return view('blog.search', compact('tasks'))->render();
-
         }
-
-
+    
         return view('blog.index', compact('tasks'));
     }
     

@@ -27,8 +27,7 @@
                             <!-- SEARCH FORM -->
                             <form class="form-inline ml-3" method="GET" action="{{ route('tasks.index') }}">
                                 <div class="input-group input-group-sm">
-                                    <input type="search" class="form-control form-control-lg" name="search" id="searchTasks"
-                                        placeholder="Recherche" value="{{ $search }}">
+                               <input type="search" class="form-control form-control-lg" name="search" id="searchTasks" placeholder="Recherche" value="{{ !empty($search) ? $search : '' }}">
                                     <div class="input-group-append">
                                         <button type="submit" class="btn btn-lg btn-default">
                                             <i class="fa fa-search"></i>
@@ -55,9 +54,10 @@
         $(document).ready(function() {
     function fetch_data(page, search) {
         $.ajax({
-            url: "tasks/?page=" + page + "&searchTasks=" + search,
+// Update the URL to the correct route
+url: "{{ route('tasks.index') }}?page=" + page + "&searchTasks=" + search,
             success: function(data) {
-                $('tbody').html('');
+                // $('tbody').html('');
                 $('tbody').html(data);
             }
         });
